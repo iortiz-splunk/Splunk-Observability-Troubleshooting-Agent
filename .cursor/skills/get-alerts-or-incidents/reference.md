@@ -1,31 +1,36 @@
 # get-alerts-or-incidents — Reference
 
-Full response shape and parameter details. Use when the agent needs to interpret unknown fields or add new output columns.
+Use for **field names**, **ID semantics**, and **manual table columns** when not using **`parse_alerts_response.py`**.
 
-## AugmentedAlert (full field list)
+## IDs
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | Alert event ID |
-| `eventId` | string | Event identifier |
-| `active` | boolean | Whether the alert is currently active |
-| `anomalyState` | string | e.g. `"anomalous"`, `"ok"` |
-| `anomalyStateUpdateTimestampMs` | integer | Last state change (epoch ms) |
-| `anomaly_state_update_iso_8601_date_time` | string | Timestamp for display |
-| `detectLabel` | string | Detector label (use for "detector name") |
-| `detector` | string | Detector display name |
-| `detectorId` | string | Detector ID |
-| `eventCategory` | string | e.g. `"ALERT"` |
-| `incidentId` | string | Incident ID |
-| `severity` | string | Critical, Major, Minor, Warning, Info |
-| `priority` | integer | Numeric priority |
-| `originatingMetric` | string \| null | Metric that triggered the alert |
-| `muted` | boolean | Whether the alert is muted |
-| `customProperties` | object \| null | Dimensions (host.name, k8s.pod.name, etc.) |
-| `link` | `{ text, url }` | Link to detector/incident in UI |
+| Concept | UI / response | MCP request |
+|--------|----------------|-------------|
+| **Detector ID** | URL `#/detector/<detectorId>/...`; field **`detectorId`** | **`detector_id`** |
+| **Incident ID** | URL `incidentId=...`; field **`incidentId`** | No parameter — search time range + **`limit`**, match in **`alerts`** (same value as **`noteId`** in some UI views) |
+| **Event ID** | Field **`eventId`** | Match in results only |
 
-## Parameters (detailed)
+## Alert object (main fields)
 
-- **time_range**: Required. `start`/`stop` accept ISO-8601, relative durations (`-15m`, `-1h`, `-1d`, `-1w`), or POSIX timestamp. Relative is delta from `stop`; `stop` defaults to `now`.
-- **service_name**: Use exact APM/RUM service name; do not use `keywords` for service names.
-- **keywords**: Limit to 1–2 single words; if no results, retry without keywords.
+| Field | Notes |
+|-------|--------|
+| `anomaly_state_update_iso_8601_date_time` | Display time |
+| `anomalyStateUpdateTimestampMs` | Prefer for sort when present |
+| `detectLabel` / `detector` | Detector name |
+| `detectorId`, `incidentId`, `eventId` | Traceability |
+| `active`, `anomalyState`, `severity` | Status |
+| `originatingMetric`, `eventCategory`, `customProperties`, `link` | Context / URL |
+
+## Manual Description column (if not using script)
+
+Join **`eventCategory`**; **`metric: ` + `originatingMetric`**; from **`customProperties`**: **`host.name`**, **`k8s.pod.name`**, **`k8s.container.name`**, **`state`**; else **`link.text`**. Escape **`|`** in markdown cells.
+
+## Parameters
+
+**`time_range`** — ISO or relative (`-15m`, `-1h`, `-1d`, `-1w`). **`stop`** usually **`now`**.
+
+**`limit`** — Hard cap per response; see SKILL **truncation** / **last N** rules.
+
+**`keywords`** — Short label search only; not for hyphenated service names or environments.
+
+**`service_name`**, **`environments`**, **`severity`**, **`detector_id`** — As in MCP schema.

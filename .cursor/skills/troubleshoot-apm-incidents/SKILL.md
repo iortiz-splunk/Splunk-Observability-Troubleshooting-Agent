@@ -23,9 +23,6 @@ Identify **service name** and **environment** from the incident (e.g. alert `sf_
 - **execute_signalflow_program**: Run SignalFlow to get the metrics identified in the previous step, or any metric time series. Prefer **generate_signalflow_program** when the agent needs a program that filters by service/environment or by infra dimensions from a trace.  
 
 ## Root cause analysis  
-Use the gathered data to form a view of root cause and recommendations. Consider including:  
-- **Summary**: Detector, service, environment, metric (e.g. request rate, latency), severity, trigger time.  
-- **Relevant data**: Service health and request mix; infrastructure metrics (when available); dependencies; exemplar or full traces as needed; infrastructure identity (host, pod, node, etc.) for correlation.  
-- **Root cause**: Primary and any secondary contributing factors, based on the evidence (e.g. traffic mix change, dependency issues, tail latency/retries, resource pressure).  
-- **Recommendations**: Concrete next steps appropriate to the findings.  
-- **Links**: Service and trace links from MCP responses when useful.  
+Use the gathered data to form a view of root cause and recommendations (traffic mix, dependencies, tail latency, resource pressure, etc.).  
+
+**Final step:** Present results using the **troubleshoot-report** skill (standard sections: alert/incident, identifiers, timestamps, links, summary, concise RCA, next steps). Pull links from MCP responses (service pages, trace analyzer, trace IDs).  
